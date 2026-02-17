@@ -9,7 +9,7 @@ class Database {
 
     public static function getConnection(): PDO {
         if (self::$instance === null) {
-            $host = getenv('DB_HOST') ?: 'db';
+            $host = getenv('DB_HOST') ?: 'localhost';
             $port = getenv('DB_PORT') ?: '5432';
             $name = getenv('DB_NAME') ?: 'transactiwar';
             $user = getenv('DB_USER') ?: 'twuser';

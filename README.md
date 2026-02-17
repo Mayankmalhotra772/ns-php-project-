@@ -9,33 +9,178 @@ Department of Computer Science and Engineering, IIT Hyderabad
 
 TransactiWar is a secure web application built with pure PHP and PostgreSQL. It implements user authentication, profile management, money transfers, and comprehensive activity logging — all without using any security frameworks or ORMs.
 
-## Quick Start (Docker)
+---
+
+## Option 1: Quick Start with Docker (Recommended for Submission)
 
 ### Prerequisites
-- Docker and Docker Compose installed
+- Docker and Docker Compose installed ([Download Docker](https://www.docker.com/products/docker-desktop/))
 
-### Run the Application
+### Run
 
 ```bash
-# Build and start all services
+git clone <your-repo-url>
+cd TransactiWar
+
+# Build and start everything (database + app)
 docker-compose up --build
 
-# The application will be available at:
-# http://localhost:8080
+# App will be at: http://localhost:8080
 ```
 
-### Stop the Application
+### Stop
 
 ```bash
 docker-compose down
 
-# To also remove database data:
+# To also delete all database data:
 docker-compose down -v
 ```
 
+That's it — Docker handles everything automatically (database, tables, test accounts).
+
+---
+
+## Option 2: Local Development Setup (Without Docker)
+
+### Step 1: Install Prerequisites (macOS)
+
+Install Homebrew (if not installed):
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Install PHP and PostgreSQL:
+```bash
+brew install php@8.2
+brew install postgresql@15
+```
+
+Add them to your PATH — run this once:
+```bash
+echo 'export PATH="/opt/homebrew/opt/php@8.2/bin:/opt/homebrew/opt/postgresql@15/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+Verify installation:
+```bash
+php -v          # Should show PHP 8.2.x
+psql --version  # Should show psql (PostgreSQL) 15.x
+```
+
+### Step 1 (Alternative): Install Prerequisites (Ubuntu/Debian Linux)
+
+```bash
+sudo apt update
+sudo apt install php8.2 php8.2-pgsql php8.2-mbstring php8.2-zip postgresql postgresql-contrib
+```
+
+### Step 1 (Alternative): Install Prerequisites (Windows)
+
+1. Download PHP 8.2 from https://windows.php.net/download/ (Thread Safe version)
+2. Extract to `C:\php` and add to System PATH
+3. Enable extensions in `php.ini`: uncomment `extension=pdo_pgsql` and `extension=pgsql`
+4. Download PostgreSQL from https://www.postgresql.org/download/windows/
+
+### Step 2: Start PostgreSQL
+
+**macOS:**
+```bash
+brew services start postgresql@15
+```
+
+**Linux:**
+```bash
+sudo systemctl start postgresql
+```
+
+**Windows:**
+PostgreSQL starts automatically as a service after installation.
+
+### Step 3: Create Database and User
+
+Open the PostgreSQL shell:
+```bash
+psql postgres
+```
+
+> **Note:** On Linux, you may need: `sudo -u postgres psql`
+
+Run these SQL commands:
+```sql
+CREATE DATABASE transactiwar;
+CREATE USER twuser WITH PASSWORD 'tw_s3cur3_p@ss!';
+GRANT ALL PRIVILEGES ON DATABASE transactiwar TO twuser;
+\c transactiwar
+GRANT ALL ON SCHEMA public TO twuser;
+\q
+```
+
+### Step 4: Load Database Schema
+
+```bash
+psql -U twuser -d transactiwar -f docker/init.sql
+```
+
+> If it asks for a password, enter: `tw_s3cur3_p@ss!`
+
+### Step 5: Update Config for Local Use
+
+Edit `app/config/database.php` — change line 12:
+```php
+// Change this:
+$host = getenv('DB_HOST') ?: 'db';
+
+// To this:
+$host = getenv('DB_HOST') ?: 'localhost';
+```
+
+Edit `app/config/security.php` — change line 20:
+```php
+// Change this:
+define('UPLOAD_DIR', '/var/uploads/');
+
+// To this:
+define('UPLOAD_DIR', __DIR__ . '/../../uploads/');
+```
+
+### Step 6: Create Test Accounts
+
+```bash
+DB_HOST=localhost DB_PORT=5432 DB_NAME=transactiwar DB_USER=twuser DB_PASS='tw_s3cur3_p@ss!' php docker/create_accounts.php
+```
+
+You should see:
+```
+Created account: alice
+Created account: bob
+...
+All test accounts created successfully!
+Password for all accounts: Test@12345678
+```
+
+### Step 7: Run the Application
+
+```bash
+DB_HOST=localhost DB_PORT=5432 DB_NAME=transactiwar DB_USER=twuser DB_PASS='tw_s3cur3_p@ss!' php -S localhost:8080 -t app/public/
+```
+
+Open your browser: **http://localhost:8080**
+
+### Step 8 (Optional): Install pgAdmin for GUI Database Access
+
+Download from https://www.pgadmin.org/download/ and connect with:
+- Host: `localhost`
+- Port: `5432`
+- Database: `transactiwar`
+- Username: `twuser`
+- Password: `tw_s3cur3_p@ss!`
+
+---
+
 ## Test Accounts
 
-The following test accounts are created automatically on startup:
+These accounts are created automatically (both Docker and local):
 
 | Username | Email                        | Password       | Balance |
 |----------|------------------------------|----------------|---------|
@@ -45,10 +190,9 @@ The following test accounts are created automatically on startup:
 | dave     | dave@transactiwar.local      | Test@12345678  | Rs. 100 |
 | eve      | eve@transactiwar.local       | Test@12345678  | Rs. 100 |
 
-You can also create additional accounts via the create_accounts.php script:
-```bash
-docker-compose exec web php /var/www/create_accounts.php
-```
+You can also register new accounts from the app.
+
+---
 
 ## Technology Stack
 
@@ -57,8 +201,10 @@ docker-compose exec web php /var/www/create_accounts.php
 | Frontend   | HTML, CSS, JS, Tailwind CSS (CDN) |
 | Backend    | PHP 8.2 (pure, no frameworks) |
 | Database   | PostgreSQL 15     |
-| Web Server | Apache 2          |
+| Web Server | Apache 2 (Docker) / PHP built-in server (local) |
 | Container  | Docker + Docker Compose |
+
+---
 
 ## Database Schema
 
@@ -77,51 +223,55 @@ docker-compose exec web php /var/www/create_accounts.php
 - Unique constraints on `users.username` and `users.email`
 - Foreign keys with `ON DELETE CASCADE/SET NULL` as appropriate
 
+---
+
 ## Project Structure
 
 ```
 ├── app/
 │   ├── config/
-│   │   ├── database.php        # PDO singleton with prepared statements
-│   │   └── security.php        # Security constants and configuration
+│   │   ├── database.php          # PDO singleton with prepared statements
+│   │   └── security.php          # Security constants and configuration
 │   ├── controllers/
-│   │   ├── AuthController.php  # Registration, login, logout
+│   │   ├── AuthController.php    # Registration, login, logout
 │   │   ├── DashboardController.php
-│   │   ├── ProfileController.php  # Profile CRUD + image upload
-│   │   ├── SearchController.php   # User search
+│   │   ├── ProfileController.php # Profile CRUD + image upload
+│   │   ├── SearchController.php  # User search
 │   │   └── TransferController.php # Money transfers + history
 │   ├── middleware/
-│   │   ├── auth.php            # Session management + validation
-│   │   ├── csrf.php            # CSRF token generation + validation
-│   │   ├── logging.php         # Activity + attack logging
-│   │   ├── rate_limit.php      # Rate limiting + account lockout
-│   │   ├── security_headers.php # Security HTTP headers
-│   │   └── validation.php      # Input validation (whitelist approach)
+│   │   ├── auth.php              # Session management + validation
+│   │   ├── csrf.php              # CSRF token generation + validation
+│   │   ├── logging.php           # Activity + attack logging
+│   │   ├── rate_limit.php        # Rate limiting + account lockout
+│   │   ├── security_headers.php  # Security HTTP headers
+│   │   └── validation.php        # Input validation (whitelist approach)
 │   ├── models/
-│   │   ├── User.php            # User DB operations
-│   │   └── Transaction.php     # Transfer with FOR UPDATE locking
+│   │   ├── User.php              # User DB operations
+│   │   └── Transaction.php       # Transfer with FOR UPDATE locking
 │   ├── public/
-│   │   ├── .htaccess           # URL rewriting
-│   │   └── index.php           # Single entry point (router)
+│   │   ├── .htaccess             # URL rewriting (Apache)
+│   │   └── index.php             # Single entry point (router)
 │   └── views/
-│       ├── layout.php          # Base layout template
+│       ├── layout.php            # Base layout template
 │       ├── login.php / register.php
 │       ├── dashboard.php
 │       ├── profile.php / edit_profile.php / view_profile.php
 │       ├── search.php
-│       ├── transfer.php / transactions.php
+│       └── transfer.php / transactions.php
 ├── docker/
-│   ├── init.sql                # DB schema
-│   ├── seed.sql                # Test account data
-│   ├── create_accounts.php     # Account creation script
-│   ├── entrypoint.sh           # Container startup script
-│   ├── php.ini                 # Hardened PHP config
-│   └── apache.conf             # Hardened Apache config
-├── uploads/                    # Mounted volume (outside web root)
+│   ├── init.sql                  # DB schema (tables, indexes, constraints)
+│   ├── seed.sql                  # Placeholder (accounts created by PHP script)
+│   ├── create_accounts.php       # Script to auto-create test accounts
+│   ├── entrypoint.sh             # Docker container startup script
+│   ├── php.ini                   # Hardened PHP config
+│   └── apache.conf               # Hardened Apache config
+├── uploads/                      # Profile images (outside web root)
 ├── Dockerfile
 ├── docker-compose.yml
 └── README.md
 ```
+
+---
 
 ## Security Mechanisms Implemented
 
@@ -165,7 +315,7 @@ docker-compose exec web php /var/www/create_accounts.php
 - File size limit: 2MB
 - `getimagesize()` verification
 - Files renamed with `random_bytes(16)` to prevent path traversal
-- Stored in `/var/uploads/` (outside web root)
+- Stored outside web root (`/var/uploads/` in Docker, `uploads/` locally)
 - Served through PHP proxy endpoint (no direct file access)
 - Old images deleted on replacement
 
@@ -192,9 +342,9 @@ docker-compose exec web php /var/www/create_accounts.php
 - Server signature removed
 
 ### 11. Logging
-- All user activity logged: page accessed, username, timestamp, client IP
+- All user activity logged to `activity_logs` table: page accessed, username, timestamp, client IP
 - Security events logged to `attack_logs` table (CSRF violations, brute force, path traversal, suspicious uploads)
-- Failed login attempts tracked separately
+- Failed login attempts tracked in `failed_logins` table
 - Error details logged server-side only (never exposed to users)
 
 ### 12. Additional Hardening
@@ -206,6 +356,8 @@ docker-compose exec web php /var/www/create_accounts.php
 - `display_errors = Off` — No error details exposed
 - Generic error messages to users
 
+---
+
 ## Assumptions
 
 1. Application runs over HTTP in Docker (HTTPS would be configured at reverse proxy level for deployment)
@@ -213,6 +365,36 @@ docker-compose exec web php /var/www/create_accounts.php
 3. Transfer comments are only visible to the receiver (not the sender) as a privacy measure
 4. Session timeout is set to 30 minutes of inactivity
 5. Account lockout duration is 15 minutes after 5 failed login attempts
+
+---
+
+## Troubleshooting
+
+**"psql: command not found"**
+Add PostgreSQL to your PATH:
+```bash
+export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
+```
+
+**"php: command not found"**
+Add PHP to your PATH:
+```bash
+export PATH="/opt/homebrew/opt/php@8.2/bin:$PATH"
+```
+
+**"Failed to listen on localhost:8080 (Address already in use)"**
+Kill the existing process:
+```bash
+lsof -ti:8080 | xargs kill -9
+```
+
+**"FATAL: role 'twuser' does not exist"**
+Create the user first — see Step 3 in Local Setup.
+
+**"FATAL: Peer authentication failed"**
+On Linux, edit `/etc/postgresql/15/main/pg_hba.conf`, change `peer` to `md5` for local connections, then restart PostgreSQL.
+
+---
 
 ## References
 

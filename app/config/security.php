@@ -17,7 +17,7 @@ define('MIN_PASSWORD_LENGTH', 10);
 define('MAX_UPLOAD_SIZE', 2 * 1024 * 1024); // 2MB
 define('ALLOWED_IMAGE_TYPES', ['image/jpeg', 'image/png']);
 define('ALLOWED_IMAGE_EXTENSIONS', ['jpg', 'jpeg', 'png']);
-define('UPLOAD_DIR', '/var/uploads/');
+define('UPLOAD_DIR', __DIR__ . '/../../uploads/');
 
 // CSRF token lifetime (1 hour)
 define('CSRF_TOKEN_LIFETIME', 3600);
