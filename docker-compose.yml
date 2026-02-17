@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - upload_data:/var/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: transactiwar
+      DB_USER: twuser
+      DB_PASS: tw_s3cur3_p@ss!
+    networks:
+      - twnet
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: transactiwar
+      POSTGRES_USER: twuser
+      POSTGRES_PASSWORD: tw_s3cur3_p@ss!
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./docker/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U twuser -d transactiwar"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - twnet
+
+volumes:
+  pg_data:
+  upload_data:
+
+networks:
+  twnet:
+    driver: bridge
