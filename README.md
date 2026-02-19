@@ -189,6 +189,8 @@ These accounts are created automatically (both Docker and local):
 | charlie  | charlie@transactiwar.local   | Test@12345678  | Rs. 100 |
 | dave     | dave@transactiwar.local      | Test@12345678  | Rs. 100 |
 | eve      | eve@transactiwar.local       | Test@12345678  | Rs. 100 |
+| abdul     | eve@transactiwar.local       | Test@12345678  | Rs. 100 |
+| jay      | eve@transactiwar.local       | Test@12345678  | Rs. 100 |
 
 You can also register new accounts from the app.
 
