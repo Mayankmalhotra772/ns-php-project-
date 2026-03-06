@@ -16,6 +16,7 @@ services:
       DB_NAME: transactiwar
       DB_USER: twuser
       DB_PASS: tw_s3cur3_p@ss!
+      UPLOAD_DIR: /var/uploads/
     networks:
       - twnet
 
