@@ -29,7 +29,6 @@
                    class="text-blue-600 break-all hover:underline">
                     <?= htmlspecialchars($_SESSION['flash_reset_link']) ?>
                 </a>
-                <p class="text-blue-600 mt-2 text-xs">This link expires in 1 hour and can only be used once.</p>
             </div>
             <?php unset($_SESSION['flash_reset_link']); ?>
         <?php endif; ?>

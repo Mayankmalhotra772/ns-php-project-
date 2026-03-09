@@ -23,7 +23,7 @@ git clone <your-repo-url>
 cd TransactiWar
 
 # Build and start everything (database + app)
-docker-compose up --build
+docker compose up --build
 
 # App will be at: https://localhost:8443
 # (HTTP on http://localhost:8080 redirects automatically to HTTPS)
@@ -33,10 +33,10 @@ docker-compose up --build
 ### Stop
 
 ```bash
-docker-compose down
+docker compose down
 
 # To also delete all database data:
-docker-compose down -v
+docker compose down -v
 ```
 
 That's it — Docker handles everything automatically (database, tables, test accounts).
@@ -218,6 +218,7 @@ You can also register new accounts from the app.
 4. **attack_logs** — Security events (CSRF violations, brute force, path traversal, etc.)
 5. **failed_logins** — Failed login attempt tracking for brute force protection
 6. **rate_limits** — Rate limiting tracking per identifier/action
+7. **password_reset_tokens** — Secure one-time password reset tokens with 1-hour expiry
 
 ### Key Constraints
 - `users.balance >= 0` — Prevents negative balance at DB level
@@ -235,7 +236,7 @@ You can also register new accounts from the app.
 │   │   ├── database.php          # PDO singleton with prepared statements
 │   │   └── security.php          # Security constants and configuration
 │   ├── controllers/
-│   │   ├── AuthController.php    # Registration, login, logout
+│   │   ├── AuthController.php    # Registration, login, logout, forgot/reset password
 │   │   ├── DashboardController.php
 │   │   ├── ProfileController.php # Profile CRUD + image upload
 │   │   ├── SearchController.php  # User search
@@ -256,6 +257,7 @@ You can also register new accounts from the app.
 │   └── views/
 │       ├── layout.php            # Base layout template
 │       ├── login.php / register.php
+│       ├── forgot_password.php / reset_password.php
 │       ├── dashboard.php
 │       ├── profile.php / edit_profile.php / view_profile.php
 │       ├── search.php
@@ -329,18 +331,27 @@ You can also register new accounts from the app.
 - DB-level CHECK constraint as additional safety net
 - Self-transfer prevented at both application and DB level
 
-### 9. IDOR Prevention
+### 9. Forgot Password / Password Reset
+- Cryptographically secure tokens generated with `bin2hex(random_bytes(32))` (64 hex chars)
+- Tokens expire after 1 hour (stored as `NOW() + INTERVAL '1 hour'` in PostgreSQL to avoid timezone issues)
+- Each token is single-use — invalidated immediately after successful reset
+- Previous unused tokens for the same user are invalidated before issuing a new one
+- Rate limited to 5 requests per hour per IP to prevent abuse
+- Same response shown for registered and unregistered emails (prevents user enumeration)
+- CSRF protection on both forgot password and reset password forms
+
+### 10. IDOR Prevention
 - Session-based user identification (never trust user-supplied user_id for ownership)
 - Transfer comments visible only to receiver
 - Ownership verification before showing private data
 
-### 10. HTTPS / TLS
+### 11. HTTPS / TLS
 - Self-signed TLS certificate generated at build time via OpenSSL (RSA 2048-bit, 365-day validity)
 - HTTP (port 80) redirects to HTTPS (port 443) via Apache 301 redirect
 - Only TLS 1.2 and TLS 1.3 allowed — SSLv3, TLS 1.0, TLS 1.1 explicitly disabled
 - Strong cipher suites enforced (ECDHE with AES-GCM)
 
-### 11. Security Headers
+### 12. Security Headers
 - `Strict-Transport-Security` — HSTS forces HTTPS for 2 years (includeSubDomains)
 - `X-Frame-Options: DENY` — Prevents clickjacking
 - `X-Content-Type-Options: nosniff` — Prevents MIME sniffing
@@ -350,13 +361,13 @@ You can also register new accounts from the app.
 - `Cache-Control: no-store` — Prevents caching of sensitive data
 - Server signature removed
 
-### 12. Logging
+### 13. Logging
 - All user activity logged to `activity_logs` table: page accessed, username, timestamp, client IP
 - Security events logged to `attack_logs` table (CSRF violations, brute force, path traversal, suspicious uploads)
 - Failed login attempts tracked in `failed_logins` table
 - Error details logged server-side only (never exposed to users)
 
-### 13. Additional Hardening
+### 14. Additional Hardening
 - Apache configured with `Options -Indexes +FollowSymLinks`
 - Non-public directories explicitly denied in Apache config
 - Single entry point architecture (all requests through `index.php`)
