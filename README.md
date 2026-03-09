@@ -334,7 +334,13 @@ You can also register new accounts from the app.
 - Transfer comments visible only to receiver
 - Ownership verification before showing private data
 
-### 10. Security Headers
+### 10. HTTPS / TLS
+- Self-signed TLS certificate generated at build time via OpenSSL (RSA 2048-bit, 365-day validity)
+- HTTP (port 80) redirects to HTTPS (port 443) via Apache 301 redirect
+- Only TLS 1.2 and TLS 1.3 allowed — SSLv3, TLS 1.0, TLS 1.1 explicitly disabled
+- Strong cipher suites enforced (ECDHE with AES-GCM)
+
+### 11. Security Headers
 - `Strict-Transport-Security` — HSTS forces HTTPS for 2 years (includeSubDomains)
 - `X-Frame-Options: DENY` — Prevents clickjacking
 - `X-Content-Type-Options: nosniff` — Prevents MIME sniffing
@@ -344,14 +350,14 @@ You can also register new accounts from the app.
 - `Cache-Control: no-store` — Prevents caching of sensitive data
 - Server signature removed
 
-### 11. Logging
+### 12. Logging
 - All user activity logged to `activity_logs` table: page accessed, username, timestamp, client IP
 - Security events logged to `attack_logs` table (CSRF violations, brute force, path traversal, suspicious uploads)
 - Failed login attempts tracked in `failed_logins` table
 - Error details logged server-side only (never exposed to users)
 
-### 12. Additional Hardening
-- Apache configured with `Options -Indexes -FollowSymLinks`
+### 13. Additional Hardening
+- Apache configured with `Options -Indexes +FollowSymLinks`
 - Non-public directories explicitly denied in Apache config
 - Single entry point architecture (all requests through `index.php`)
 - PHP dangerous functions disabled (`exec`, `system`, `passthru`, etc.)
