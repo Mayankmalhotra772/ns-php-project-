@@ -25,7 +25,9 @@ cd TransactiWar
 # Build and start everything (database + app)
 docker-compose up --build
 
-# App will be at: http://localhost:8080
+# App will be at: https://localhost:8443
+# (HTTP on http://localhost:8080 redirects automatically to HTTPS)
+# Note: Your browser will show a self-signed certificate warning — click "Advanced" and proceed.
 ```
 
 ### Stop
@@ -333,6 +335,7 @@ You can also register new accounts from the app.
 - Ownership verification before showing private data
 
 ### 10. Security Headers
+- `Strict-Transport-Security` — HSTS forces HTTPS for 2 years (includeSubDomains)
 - `X-Frame-Options: DENY` — Prevents clickjacking
 - `X-Content-Type-Options: nosniff` — Prevents MIME sniffing
 - `Content-Security-Policy` — Restricts resource loading
@@ -360,7 +363,7 @@ You can also register new accounts from the app.
 
 ## Assumptions
 
-1. Application runs over HTTP in Docker (HTTPS would be configured at reverse proxy level for deployment)
+1. Application runs over HTTPS in Docker using a self-signed certificate (port 443). HTTP (port 80) redirects automatically to HTTPS.
 2. All test accounts start with Rs. 100 balance as specified
 3. Transfer comments are only visible to the receiver (not the sender) as a privacy measure
 4. Session timeout is set to 30 minutes of inactivity
