@@ -72,6 +72,16 @@ CREATE TABLE IF NOT EXISTS rate_limits (
     UNIQUE(identifier, action)
 );
 
+-- Password reset tokens
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(64) NOT NULL UNIQUE,
+    expires_at TIMESTAMP NOT NULL,
+    used BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_transactions_sender ON transactions(sender_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_receiver ON transactions(receiver_id);
@@ -83,3 +93,5 @@ CREATE INDEX IF NOT EXISTS idx_failed_logins_username ON failed_logins(username)
 CREATE INDEX IF NOT EXISTS idx_failed_logins_ip ON failed_logins(ip_address);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_reset_tokens_token ON password_reset_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_reset_tokens_user ON password_reset_tokens(user_id);

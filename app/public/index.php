@@ -85,6 +85,22 @@ switch (true) {
         $auth->logout();
         break;
 
+    case $requestUri === '/forgot-password' && $method === 'GET':
+        $auth->showForgotPassword();
+        break;
+
+    case $requestUri === '/forgot-password' && $method === 'POST':
+        $auth->forgotPassword();
+        break;
+
+    case $requestUri === '/reset-password' && $method === 'GET':
+        $auth->showResetPassword();
+        break;
+
+    case $requestUri === '/reset-password' && $method === 'POST':
+        $auth->resetPassword();
+        break;
+
     // Dashboard
     case $requestUri === '/dashboard':
         $dashboard->index();

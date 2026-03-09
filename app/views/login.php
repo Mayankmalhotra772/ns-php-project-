@@ -34,7 +34,10 @@ unset($_SESSION['form_data']);
             </button>
         </form>
 
-        <p class="text-center text-sm text-gray-500 mt-4">
+        <p class="text-center text-sm text-gray-500 mt-3">
+            <a href="/forgot-password" class="text-indigo-600 hover:underline">Forgot your password?</a>
+        </p>
+        <p class="text-center text-sm text-gray-500 mt-2">
             Don't have an account? <a href="/register" class="text-indigo-600 hover:underline">Register here</a>
         </p>
     </div>
