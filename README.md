@@ -186,7 +186,7 @@ These accounts are created automatically (both Docker and local):
 
 | Username | Email                        | Password       | Balance |
 |----------|------------------------------|----------------|---------|
-| alice    | alice@transactiwar.local     | Test@12345678  | Rs. 100 |
+| alice    | alice@transactiwar.local     |Test@12345678   | Rs. 100 |
 | bob      | bob@transactiwar.local       | Test@12345678  | Rs. 100 |
 | charlie  | charlie@transactiwar.local   | Test@12345678  | Rs. 100 |
 | dave     | dave@transactiwar.local      | Test@12345678  | Rs. 100 |
@@ -267,7 +267,6 @@ You can also register new accounts from the app.
 │   ├── entrypoint.sh             # Docker container startup script
 │   ├── php.ini                   # Hardened PHP config
 │   └── apache.conf               # Hardened Apache config
-├── uploads/                      # Profile images (outside web root)
 ├── Dockerfile
 ├── docker-compose.yml
 └── README.md
