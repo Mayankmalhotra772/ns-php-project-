@@ -117,40 +117,6 @@ class User {
         return $stmt->fetchAll();
     }
 
-    public static function createResetToken(int $userId): string {
-        $db = Database::getConnection();
-        $token = bin2hex(random_bytes(32)); // 64-char hex token
-
-        // Invalidate any existing unused tokens for this user
-        $stmt = $db->prepare('UPDATE password_reset_tokens SET used = TRUE WHERE user_id = :user_id AND used = FALSE');
-        $stmt->execute([':user_id' => $userId]);
-
-        // Use NOW() + INTERVAL in SQL to avoid PHP/PostgreSQL timezone mismatch
-        $stmt = $db->prepare(
-            "INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (:user_id, :token, NOW() + INTERVAL '1 hour')"
-        );
-        $stmt->execute([':user_id' => $userId, ':token' => $token]);
-        return $token;
-    }
-
-    public static function findValidResetToken(string $token): ?array {
-        $db = Database::getConnection();
-        $stmt = $db->prepare(
-            'SELECT prt.*, u.id as user_id FROM password_reset_tokens prt
-             JOIN users u ON u.id = prt.user_id
-             WHERE prt.token = :token AND prt.used = FALSE AND prt.expires_at > NOW()'
-        );
-        $stmt->execute([':token' => $token]);
-        $result = $stmt->fetch();
-        return $result ?: null;
-    }
-
-    public static function invalidateResetToken(string $token): void {
-        $db = Database::getConnection();
-        $stmt = $db->prepare('UPDATE password_reset_tokens SET used = TRUE WHERE token = :token');
-        $stmt->execute([':token' => $token]);
-    }
-
     public static function getPasswordHash(int $id): ?string {
         $db = Database::getConnection();
         $stmt = $db->prepare('SELECT password_hash FROM users WHERE id = :id');

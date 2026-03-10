@@ -69,9 +69,7 @@ function renderLayout(string $title, string $content, bool $showNav = true): voi
         <?= $content ?>
     </main>
 
-    <footer class="text-center py-4 text-gray-400 text-sm">
-        TransactiWar &copy; <?= date('Y') ?> — CS6903 Network Security, IIT Hyderabad
-    </footer>
+
 </body>
 </html>
 <?php
