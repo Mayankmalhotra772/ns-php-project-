@@ -10,7 +10,8 @@ class Transaction {
      * Transfer money between users atomically.
      * Uses row-level locking to prevent race conditions.
      */
-    public static function transfer(int $senderId, int $receiverId, float $amount, string $comment = ''): array {
+    public static function transfer(int $senderId, int $receiverId, string|float $amount, string $comment = ''): array {
+        $amount = number_format(floatval($amount), 2, '.', '');
         $db = Database::getConnection();
 
         // Prevent self-transfer

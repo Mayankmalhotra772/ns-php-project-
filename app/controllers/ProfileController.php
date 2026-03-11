@@ -182,6 +182,7 @@ class ProfileController {
         }
 
         header('Content-Type: ' . $mimeType);
+        header('Content-Disposition: inline; filename="' . $filename . '"');
         header('Content-Length: ' . filesize($filepath));
         header('Cache-Control: private, max-age=3600');
         header('X-Content-Type-Options: nosniff');

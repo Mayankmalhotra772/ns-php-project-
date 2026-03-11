@@ -1,63 +1,46 @@
 <?php
 /**
  * Rate limiting middleware.
- * Tracks and enforces request rate limits.
+ * Tracks and enforces request rate limits using atomic DB operations.
  */
 
 function checkRateLimit(string $identifier, string $action, int $maxAttempts = RATE_LIMIT_MAX_REQUESTS, int $window = RATE_LIMIT_WINDOW): bool {
     try {
         $db = Database::getConnection();
 
-        // Clean up old entries
+        // Atomic upsert + check in a single query to prevent race conditions
         $stmt = $db->prepare(
-            'DELETE FROM rate_limits WHERE window_start < :cutoff'
+            "INSERT INTO rate_limits (identifier, action, attempts, window_start)
+             VALUES (:identifier, :action, 1, CURRENT_TIMESTAMP)
+             ON CONFLICT (identifier, action) DO UPDATE SET
+                attempts = CASE
+                    WHEN rate_limits.window_start < :cutoff THEN 1
+                    ELSE rate_limits.attempts + 1
+                END,
+                window_start = CASE
+                    WHEN rate_limits.window_start < :cutoff THEN CURRENT_TIMESTAMP
+                    ELSE rate_limits.window_start
+                END
+             RETURNING attempts"
         );
-        $stmt->execute([':cutoff' => date('Y-m-d H:i:s', time() - $window)]);
-
-        // Check current count
-        $stmt = $db->prepare(
-            'SELECT attempts, window_start FROM rate_limits
-             WHERE identifier = :identifier AND action = :action'
-        );
-        $stmt->execute([':identifier' => $identifier, ':action' => $action]);
+        $cutoff = date('Y-m-d H:i:s', time() - $window);
+        $stmt->execute([
+            ':identifier' => $identifier,
+            ':action' => $action,
+            ':cutoff' => $cutoff,
+        ]);
         $row = $stmt->fetch();
 
-        if ($row) {
-            $windowStart = strtotime($row['window_start']);
-            if ((time() - $windowStart) > $window) {
-                // Window expired, reset
-                $stmt = $db->prepare(
-                    'UPDATE rate_limits SET attempts = 1, window_start = CURRENT_TIMESTAMP
-                     WHERE identifier = :identifier AND action = :action'
-                );
-                $stmt->execute([':identifier' => $identifier, ':action' => $action]);
-                return true;
-            }
-
-            if ($row['attempts'] >= $maxAttempts) {
-                return false; // Rate limited
-            }
-
-            // Increment
-            $stmt = $db->prepare(
-                'UPDATE rate_limits SET attempts = attempts + 1
-                 WHERE identifier = :identifier AND action = :action'
-            );
-            $stmt->execute([':identifier' => $identifier, ':action' => $action]);
-            return true;
+        // Clean up old entries periodically (non-blocking)
+        if (random_int(1, 100) <= 5) {
+            $cleanup = $db->prepare('DELETE FROM rate_limits WHERE window_start < :cutoff');
+            $cleanup->execute([':cutoff' => $cutoff]);
         }
 
-        // First attempt
-        $stmt = $db->prepare(
-            'INSERT INTO rate_limits (identifier, action, attempts, window_start)
-             VALUES (:identifier, :action, 1, CURRENT_TIMESTAMP)
-             ON CONFLICT (identifier, action) DO UPDATE SET attempts = rate_limits.attempts + 1'
-        );
-        $stmt->execute([':identifier' => $identifier, ':action' => $action]);
-        return true;
+        return ($row['attempts'] <= $maxAttempts);
     } catch (Exception $e) {
         error_log('Rate limit check failed: ' . $e->getMessage());
-        return true; // Fail open to not block legitimate users on DB error
+        return false; // Fail closed — block request on DB error
     }
 }
 

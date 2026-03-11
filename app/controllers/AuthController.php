@@ -177,6 +177,13 @@ class AuthController {
 
     public function logout(): void {
         initSession();
+
+        if (!validateCsrfToken()) {
+            logAttackEvent(getCurrentUserId(), getCurrentUsername(), 'csrf_violation', 'CSRF token mismatch on logout', 'high');
+            header('Location: /dashboard');
+            exit;
+        }
+
         $username = getCurrentUsername() ?? 'anonymous';
         logActivity('/logout', 'user_logged_out: ' . $username);
         destroySession();

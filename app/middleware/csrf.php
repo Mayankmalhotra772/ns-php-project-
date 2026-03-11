@@ -2,6 +2,7 @@
 /**
  * CSRF protection middleware.
  * Generates and validates CSRF tokens per session.
+ * Token is rotated after each successful validation.
  */
 
 function generateCsrfToken(): string {
@@ -44,5 +45,10 @@ function validateCsrfToken(): bool {
     }
 
     // Constant-time comparison to prevent timing attacks
-    return hash_equals($sessionToken, $submittedToken);
+    $valid = hash_equals($sessionToken, $submittedToken);
+
+    // Rotate token after each validation attempt (used or not)
+    unset($_SESSION['csrf_token'], $_SESSION['csrf_token_time']);
+
+    return $valid;
 }

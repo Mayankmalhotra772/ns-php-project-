@@ -289,14 +289,18 @@ You can also register new accounts from the app.
 ### 3. CSRF Protection
 - Per-session CSRF tokens generated with `random_bytes(32)`
 - Validated on every POST request using constant-time `hash_equals()`
+- Tokens rotated after every successful validation (single-use)
 - Tokens regenerate after expiry (1 hour)
+- Logout requires POST with CSRF token (prevents forced logout via `<img src="/logout">`)
 
 ### 4. Session Security
 - `session_regenerate_id(true)` on login to prevent session fixation
 - HttpOnly cookies (`session.cookie_httponly = 1`)
+- Secure cookie flag (`session.cookie_secure = 1`) — cookies only sent over HTTPS
 - SameSite=Strict cookie attribute
 - Session timeout after 30 minutes of inactivity
 - User-agent hash validation to detect session hijacking
+- IP address binding — session invalidated if client IP changes
 - Custom session name (`TW_SESSID`)
 
 ### 5. Password Security
@@ -307,7 +311,9 @@ You can also register new accounts from the app.
 ### 6. Brute Force Protection
 - Failed login tracking in database
 - Account lockout after 5 failed attempts (15-minute cooldown)
-- IP-based rate limiting
+- IP-based rate limiting with atomic DB operations (prevents race condition bypass)
+- Rate limiter fails closed on DB error (blocks requests rather than allowing bypass)
+- Rate limiting on search endpoint to prevent username enumeration
 - Dummy password hash on non-existent usernames (prevents user enumeration via timing)
 
 ### 7. File Upload Security
@@ -327,6 +333,7 @@ You can also register new accounts from the app.
 - `WHERE balance >= amount` in UPDATE prevents negative balance
 - DB-level CHECK constraint as additional safety net
 - Self-transfer prevented at both application and DB level
+- String-based amount formatting (`number_format`) to avoid float precision issues
 
 ### 9. IDOR Prevention
 - Session-based user identification (never trust user-supplied user_id for ownership)
@@ -343,7 +350,7 @@ You can also register new accounts from the app.
 - `Strict-Transport-Security` — HSTS forces HTTPS for 2 years (includeSubDomains)
 - `X-Frame-Options: DENY` — Prevents clickjacking
 - `X-Content-Type-Options: nosniff` — Prevents MIME sniffing
-- `Content-Security-Policy` — Restricts resource loading
+- `Content-Security-Policy` — Restricts resource loading (`unsafe-inline` removed from `script-src`)
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - `Permissions-Policy` — Disables camera, microphone, geolocation
 - `Cache-Control: no-store` — Prevents caching of sensitive data

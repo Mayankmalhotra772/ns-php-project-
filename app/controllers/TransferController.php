@@ -87,7 +87,7 @@ class TransferController {
             exit;
         }
 
-        $amountFloat = round(floatval($amount), 2);
+        $amountFloat = number_format(floatval($amount), 2, '.', '');
 
         // Perform transfer
         $result = Transaction::transfer($senderId, $receiverId, $amountFloat, $comment);

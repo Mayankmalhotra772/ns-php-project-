@@ -14,6 +14,15 @@ class SearchController {
         $results = [];
 
         if (!empty($query)) {
+            // Rate limit search by IP
+            $ip = getClientIp();
+            if (!checkRateLimit($ip, 'search', 30, 60)) {
+                $_SESSION['flash_error'] = 'Too many search requests. Please slow down.';
+                $csrfField = getCsrfTokenField();
+                require __DIR__ . '/../views/search.php';
+                return;
+            }
+
             // Limit query length to prevent abuse
             if (strlen($query) > 100) {
                 $query = substr($query, 0, 100);

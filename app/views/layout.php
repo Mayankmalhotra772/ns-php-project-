@@ -39,7 +39,10 @@ function renderLayout(string $title, string $content, bool $showNav = true): voi
                     <a href="/profile" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-600 transition">
                         <?= sanitizeOutput(getCurrentUsername()) ?>
                     </a>
-                    <a href="/logout" class="bg-indigo-800 px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-900 transition">Logout</a>
+                    <form method="POST" action="/logout" class="inline">
+                        <?= getCsrfTokenField() ?>
+                        <button type="submit" class="bg-indigo-800 px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-900 transition">Logout</button>
+                    </form>
                 </div>
             </div>
             <!-- Mobile menu -->

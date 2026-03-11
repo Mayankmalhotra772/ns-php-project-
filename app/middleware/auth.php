@@ -51,6 +51,25 @@ function requireAuth(): void {
             exit;
         }
     }
+
+    // Validate session integrity — check IP address
+    if (isset($_SESSION['ip_address'])) {
+        $currentIp = getClientIp();
+        if ($_SESSION['ip_address'] !== $currentIp) {
+            logAttackEvent(
+                $_SESSION['user_id'] ?? null,
+                $_SESSION['username'] ?? 'unknown',
+                'session_hijack_attempt',
+                'IP address mismatch: expected ' . $_SESSION['ip_address'] . ', got ' . $currentIp,
+                'high'
+            );
+            destroySession();
+            session_start();
+            $_SESSION['flash_error'] = 'Session invalidated for security reasons.';
+            header('Location: /login');
+            exit;
+        }
+    }
 }
 
 function isLoggedIn(): bool {

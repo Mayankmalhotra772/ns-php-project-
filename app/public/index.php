@@ -81,7 +81,7 @@ switch (true) {
         $auth->login();
         break;
 
-    case $requestUri === '/logout':
+    case $requestUri === '/logout' && $method === 'POST':
         $auth->logout();
         break;
 
