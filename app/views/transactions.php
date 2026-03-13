@@ -58,7 +58,7 @@ ob_start();
                                     <span class="text-gray-300">—</span>
                                 <?php endif; ?>
                             </td>
-                            <td class="py-3 text-gray-400 whitespace-nowrap"><?= sanitizeOutput(date('M j, Y g:i A', strtotime($tx['created_at']))) ?></td>
+                            <td class="py-3 text-gray-400 whitespace-nowrap"><?= sanitizeOutput(date('M j, Y g:i A', strtotime($tx['created_at'] . ' UTC'))) ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>

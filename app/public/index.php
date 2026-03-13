@@ -7,6 +7,9 @@
  * All other files are outside the web root or access-denied by Apache.
  */
 
+// Set timezone to IST
+date_default_timezone_set('Asia/Kolkata');
+
 // Error handling — never expose details to users
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
