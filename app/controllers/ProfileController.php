@@ -163,8 +163,9 @@ class ProfileController {
         // Remove old profile image if exists
         $userId = getCurrentUserId();
         $currentUser = User::findById($userId);
-        if ($currentUser && $currentUser['profile_image']) {
-            $oldFile = UPLOAD_DIR . $currentUser['profile_image'];
+        $img = $currentUser['profile_image'] ?? null;
+        if ($img && preg_match('/^[a-f0-9]+\.(jpg|jpeg|png)$/i', $img)) {
+            $oldFile = UPLOAD_DIR . $img;
             if (file_exists($oldFile)) {
                 unlink($oldFile);
             }
