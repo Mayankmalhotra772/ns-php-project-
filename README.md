@@ -3,6 +3,16 @@
 **CS6903: Network Security, 2025-26**
 Department of Computer Science and Engineering, IIT Hyderabad
 
+## Team Members
+
+| # | Name | Roll No | Email |
+|---|------|---------|-------|
+| 1 | Mayank Malhotra | CS25MTECH11016 | cs25mtech11016@iith.ac.in |
+| 2 | Mohammed Abdul Momin Siddiqui | CS25MTECH11017 | cs25mtech11017@iith.ac.in |
+| 3 | Sajid Ali | CS25MTECH11019 | cs25mtech11019@iith.ac.in |
+| 4 | Pokale Jay Atul | CS25MTECH11013 | cs25mtech11013@iith.ac.in |
+| 5 | Khwaja Abdul Samad | CS25MTECH11014 | cs25mtech11014@iith.ac.in |
+
 ---
 
 ## Overview
