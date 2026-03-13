@@ -123,13 +123,38 @@ class ProfileController {
             exit;
         }
 
-        // Generate random filename to prevent path traversal
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        // Re-encode image to strip metadata and embedded payloads
+        $tmpPath = $file['tmp_name'];
+        $mimeType = mime_content_type($tmpPath);
+        $srcImage = null;
+
+        if ($mimeType === 'image/jpeg') {
+            $srcImage = @imagecreatefromjpeg($tmpPath);
+        } elseif ($mimeType === 'image/png') {
+            $srcImage = @imagecreatefrompng($tmpPath);
+        }
+
+        if (!$srcImage) {
+            $_SESSION['flash_error'] = 'Failed to process image. The file may be corrupted.';
+            header('Location: /profile/edit');
+            exit;
+        }
+
+        // Generate random filename
+        $ext = ($mimeType === 'image/png') ? 'png' : 'jpg';
         $newFilename = bin2hex(random_bytes(16)) . '.' . $ext;
         $destination = UPLOAD_DIR . $newFilename;
 
-        // Move file to secure location outside web root
-        if (!move_uploaded_file($file['tmp_name'], $destination)) {
+        // Save re-encoded image (strips all metadata/payloads)
+        $saved = false;
+        if ($ext === 'png') {
+            $saved = imagepng($srcImage, $destination, 6);
+        } else {
+            $saved = imagejpeg($srcImage, $destination, 85);
+        }
+        imagedestroy($srcImage);
+
+        if (!$saved) {
             $_SESSION['flash_error'] = 'Failed to save image. Please try again.';
             header('Location: /profile/edit');
             exit;
@@ -196,6 +221,14 @@ class ProfileController {
         if (!validateCsrfToken()) {
             logAttackEvent(getCurrentUserId(), getCurrentUsername(), 'csrf_violation', 'CSRF token mismatch on password change', 'high');
             $_SESSION['flash_error'] = 'Invalid request. Please try again.';
+            header('Location: /profile/edit');
+            exit;
+        }
+
+        // Rate limit password change attempts
+        $ip = getClientIp();
+        if (!checkRateLimit($ip . ':' . getCurrentUserId(), 'password_change', 5, 60)) {
+            $_SESSION['flash_error'] = 'Too many password change attempts. Please try again later.';
             header('Location: /profile/edit');
             exit;
         }

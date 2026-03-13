@@ -52,13 +52,10 @@ class AuthController {
             $errors[] = 'Passwords do not match.';
         }
 
-        // Check uniqueness
+        // Check uniqueness (generic message to prevent enumeration)
         if (empty($errors)) {
-            if (User::findByUsername($username)) {
-                $errors[] = 'Username is already taken.';
-            }
-            if (User::findByEmail($email)) {
-                $errors[] = 'Email is already registered.';
+            if (User::findByUsername($username) || User::findByEmail($email)) {
+                $errors[] = 'An account with that username or email already exists.';
             }
         }
 
@@ -158,15 +155,11 @@ class AuthController {
         createAuthSession((int)$user['id'], $user['username']);
         logActivity('/login', 'successful_login');
 
-        // Clear failed login attempts for this user
+        // Clear failed login attempts for this user from this IP
         try {
             $db = Database::getConnection();
-            $stmt = $db->prepare('DELETE FROM failed_logins WHERE username = :username');
-            $stmt->execute([':username' => $username]);
-
-            // Unlock account
-            $stmt = $db->prepare('UPDATE users SET is_locked = FALSE, lock_until = NULL WHERE username = :username');
-            $stmt->execute([':username' => $username]);
+            $stmt = $db->prepare('DELETE FROM failed_logins WHERE username = :username AND ip_address = :ip');
+            $stmt->execute([':username' => $username, ':ip' => $ip]);
         } catch (Exception $e) {
             error_log('Failed to clear login attempts: ' . $e->getMessage());
         }

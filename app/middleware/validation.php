@@ -87,7 +87,7 @@ function validateTransferAmount(string $amount): array {
 function validateComment(string $comment): array {
     $errors = [];
 
-    if (strlen($comment) > MAX_COMMENT_LENGTH) {
+    if (mb_strlen($comment, 'UTF-8') > MAX_COMMENT_LENGTH) {
         $errors[] = 'Comment must not exceed ' . MAX_COMMENT_LENGTH . ' characters.';
     }
 
@@ -97,7 +97,7 @@ function validateComment(string $comment): array {
 function validateBiography(string $bio): array {
     $errors = [];
 
-    if (strlen($bio) > MAX_BIOGRAPHY_LENGTH) {
+    if (mb_strlen($bio, 'UTF-8') > MAX_BIOGRAPHY_LENGTH) {
         $errors[] = 'Biography must not exceed ' . MAX_BIOGRAPHY_LENGTH . ' characters.';
     }
 

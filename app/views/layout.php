@@ -59,7 +59,7 @@ function renderLayout(string $title, string $content, bool $showNav = true): voi
     <main class="max-w-6xl mx-auto px-4 py-8">
         <?php if ($flashError): ?>
             <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-                <?= $flashError ?>
+                <?= implode('<br>', array_map('htmlspecialchars', explode('<br>', $flashError))) ?>
             </div>
         <?php endif; ?>
 

@@ -33,8 +33,8 @@ ob_start();
                         $isSender = ((int)$tx['sender_id'] === getCurrentUserId());
                         $otherUser = $isSender ? $tx['receiver_username'] : $tx['sender_username'];
                         $otherId = $isSender ? (int)$tx['receiver_id'] : (int)$tx['sender_id'];
-                        // Comments visible to both sender and receiver
-                        $showComment = !empty($tx['comment']);
+                        // Comments only visible to the receiver (per spec)
+                        $showComment = !empty($tx['comment']) && !$isSender;
                         ?>
                         <tr class="border-b border-gray-50 hover:bg-gray-50">
                             <td class="py-3 text-gray-400">#<?= (int)$tx['id'] ?></td>

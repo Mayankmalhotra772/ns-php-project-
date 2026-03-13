@@ -44,49 +44,24 @@ function checkRateLimit(string $identifier, string $action, int $maxAttempts = R
     }
 }
 
-function isAccountLocked(string $username): bool {
+function isAccountLocked(string $username, ?string $ip = null): bool {
     try {
         $db = Database::getConnection();
+        $ip = $ip ?? getClientIp();
 
-        // Check user lock status
-        $stmt = $db->prepare(
-            'SELECT is_locked, lock_until FROM users WHERE username = :username'
-        );
-        $stmt->execute([':username' => $username]);
-        $user = $stmt->fetch();
-
-        if ($user && $user['is_locked']) {
-            if ($user['lock_until'] && strtotime($user['lock_until']) > time()) {
-                return true;
-            }
-            // Lock expired, unlock
-            $stmt = $db->prepare(
-                'UPDATE users SET is_locked = FALSE, lock_until = NULL WHERE username = :username'
-            );
-            $stmt->execute([':username' => $username]);
-            return false;
-        }
-
-        // Count recent failed attempts
+        // Count recent failed attempts from this specific IP for this username
         $stmt = $db->prepare(
             'SELECT COUNT(*) as cnt FROM failed_logins
-             WHERE username = :username AND attempted_at > :cutoff'
+             WHERE username = :username AND ip_address = :ip AND attempted_at > :cutoff'
         );
         $stmt->execute([
             ':username' => $username,
+            ':ip'       => $ip,
             ':cutoff'   => date('Y-m-d H:i:s', time() - LOCKOUT_DURATION),
         ]);
         $result = $stmt->fetch();
 
         if ($result['cnt'] >= MAX_LOGIN_ATTEMPTS) {
-            // Lock the account
-            $stmt = $db->prepare(
-                'UPDATE users SET is_locked = TRUE, lock_until = :lock_until WHERE username = :username'
-            );
-            $stmt->execute([
-                ':username'   => $username,
-                ':lock_until' => date('Y-m-d H:i:s', time() + LOCKOUT_DURATION),
-            ]);
             return true;
         }
 
