@@ -334,7 +334,8 @@ You can also register new accounts from the app.
 - Files renamed with `random_bytes(16)` to prevent path traversal
 - Stored outside web root (`/var/uploads/` in Docker, `uploads/` locally)
 - Served through PHP proxy endpoint (no direct file access)
-- Old images deleted on replacement
+- Images re-encoded via GD library to strip metadata and embedded payloads
+- Old images deleted on replacement (with regex-validated filename)
 
 ### 8. Money Transfer Security
 - PostgreSQL transactions with `BEGIN`/`COMMIT`/`ROLLBACK`
@@ -347,7 +348,7 @@ You can also register new accounts from the app.
 
 ### 9. IDOR Prevention
 - Session-based user identification (never trust user-supplied user_id for ownership)
-- Transfer comments visible only to receiver
+- Transfer comments visible to both sender and receiver
 - Ownership verification before showing private data
 
 ### 10. HTTPS / TLS
@@ -387,7 +388,7 @@ You can also register new accounts from the app.
 
 1. Application runs over HTTPS in Docker using a self-signed certificate (port 443). HTTP (port 80) redirects automatically to HTTPS.
 2. All test accounts start with Rs. 100 balance as specified
-3. Transfer comments are only visible to the receiver (not the sender) as a privacy measure
+3. Transfer comments are visible to both sender and receiver
 4. Session timeout is set to 30 minutes of inactivity
 5. Account lockout duration is 15 minutes after 5 failed login attempts
 
