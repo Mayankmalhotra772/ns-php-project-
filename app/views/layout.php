@@ -16,7 +16,7 @@ function renderLayout(string $title, string $content, bool $showNav = true): voi
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><?= sanitizeOutput($title) ?> - TransactiWar</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/tailwind.js"></script>
     <style>
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
     </style>
