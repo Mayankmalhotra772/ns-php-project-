@@ -91,7 +91,8 @@ class User {
 
     public static function search(string $query, int $limit = 20): array {
         $db = Database::getConnection();
-        $searchTerm = '%' . $query . '%';
+        $escaped = str_replace(['%', '_'], ['\%', '\_'], $query);
+        $searchTerm = '%' . $escaped . '%';
 
         // Search by username or ID
         if (is_numeric($query)) {
