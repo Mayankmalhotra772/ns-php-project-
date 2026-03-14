@@ -4,8 +4,8 @@ services:
   web:
     build: .
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "80:80"
+      - "443:443"
     volumes:
       - upload_data:/var/uploads
     depends_on:
