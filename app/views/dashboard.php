@@ -58,7 +58,7 @@ ob_start();
                         <td class="py-3 font-medium <?= $isSender ? 'text-red-600' : 'text-green-600' ?>">
                             <?= $isSender ? '-' : '+' ?>Rs. <?= sanitizeOutput(number_format(floatval($tx['amount']), 2)) ?>
                         </td>
-                        <td class="py-3 text-gray-400"><?= sanitizeOutput(date('M j, g:i A', strtotime($tx['created_at']))) ?></td>
+                        <td class="py-3 text-gray-400"><?= sanitizeOutput(date('M j, g:i A', strtotime($tx['created_at'] . ' UTC'))) ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
