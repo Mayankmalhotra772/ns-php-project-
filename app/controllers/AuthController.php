@@ -125,7 +125,7 @@ class AuthController {
         // Check account lockout
         if (isAccountLocked($username)) {
             logAttackEvent(null, $username, 'locked_account_login', 'Attempt to login to locked account', 'medium');
-            $_SESSION['flash_error'] = 'Account is temporarily locked due to too many failed attempts. Please try again in 15 minutes.';
+            $_SESSION['flash_error'] = 'Account is temporarily locked due to too many failed attempts. Please try again in 10 minutes.';
             header('Location: /login');
             exit;
         }

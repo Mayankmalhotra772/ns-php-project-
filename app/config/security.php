@@ -8,7 +8,7 @@ define('SESSION_TIMEOUT', 1800);
 
 // Brute force protection
 define('MAX_LOGIN_ATTEMPTS', 5);
-define('LOCKOUT_DURATION', 900); // 15 minutes in seconds
+define('LOCKOUT_DURATION', 600); // 10 minutes in seconds
 
 // Password policy
 define('MIN_PASSWORD_LENGTH', 10);
@@ -23,7 +23,7 @@ define('UPLOAD_DIR', '/var/uploads/');
 define('CSRF_TOKEN_LIFETIME', 3600);
 
 // Rate limiting
-define('RATE_LIMIT_WINDOW', 900); // 15 minutes
+define('RATE_LIMIT_WINDOW', 600); // 10 minutes
 define('RATE_LIMIT_MAX_REQUESTS', 100);
 
 // Biography max length
