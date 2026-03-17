@@ -35,7 +35,7 @@ unset($_SESSION['form_data']);
         </form>
 
         <p class="text-center text-sm text-gray-500 mt-3">
-            Don't have an account? <a href="/register" class="text-indigo-600 hover:underline">Register here</a>
+            Don't have an account? hello <a href="/register" class="text-indigo-600 hover:underline">Register here</a>
         </p>
     </div>
 </div>
@@ -43,3 +43,5 @@ unset($_SESSION['form_data']);
 <?php
 $content = ob_get_clean();
 renderLayout('Login', $content, false);
+
+
