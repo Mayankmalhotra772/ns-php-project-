@@ -15,7 +15,7 @@ class TransferController {
         $csrfField = getCsrfTokenField();
 
         // Pre-fill receiver from query string
-        $receiverId = isset($_GET['to']) ? (int)$_GET['to'] : null;
+        $receiverId = isset($_GET['to']) && is_scalar($_GET['to']) ? (int)$_GET['to'] : null;
         $receiverUser = null;
         if ($receiverId && $receiverId !== $userId) {
             $receiverUser = User::findById($receiverId);
