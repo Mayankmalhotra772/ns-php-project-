@@ -121,7 +121,7 @@ psql postgres
 Run these SQL commands:
 ```sql
 CREATE DATABASE transactiwar;
-CREATE USER twuser WITH PASSWORD 'tw_s3cur3_p@ss!';
+CREATE USER twuser WITH PASSWORD 'G4uYTFdF!YAunKjO&mJ5nB9sW1YGFNqI';
 GRANT ALL PRIVILEGES ON DATABASE transactiwar TO twuser;
 \c transactiwar
 GRANT ALL ON SCHEMA public TO twuser;
@@ -134,7 +134,7 @@ GRANT ALL ON SCHEMA public TO twuser;
 psql -U twuser -d transactiwar -f docker/init.sql
 ```
 
-> If it asks for a password, enter: `tw_s3cur3_p@ss!`
+> If it asks for a password, enter: `G4uYTFdF!YAunKjO&mJ5nB9sW1YGFNqI`
 
 ### Step 5: Update Config for Local Use
 
@@ -159,7 +159,7 @@ define('UPLOAD_DIR', __DIR__ . '/../../uploads/');
 ### Step 6: Create Test Accounts
 
 ```bash
-DB_HOST=localhost DB_PORT=5432 DB_NAME=transactiwar DB_USER=twuser DB_PASS='tw_s3cur3_p@ss!' php docker/create_accounts.php
+DB_HOST=localhost DB_PORT=5432 DB_NAME=transactiwar DB_USER=twuser DB_PASS='G4uYTFdF!YAunKjO&mJ5nB9sW1YGFNqI' php docker/create_accounts.php
 ```
 
 You should see:
@@ -174,7 +174,7 @@ Password for all accounts: Test@12345678
 ### Step 7: Run the Application
 
 ```bash
-DB_HOST=localhost DB_PORT=5432 DB_NAME=transactiwar DB_USER=twuser DB_PASS='tw_s3cur3_p@ss!' php -S localhost:8080 -t app/public/
+DB_HOST=localhost DB_PORT=5432 DB_NAME=transactiwar DB_USER=twuser DB_PASS='G4uYTFdF!YAunKjO&mJ5nB9sW1YGFNqI' php -S localhost:8080 -t app/public/
 ```
 
 Open your browser: **http://localhost:8080**
@@ -186,7 +186,7 @@ Download from https://www.pgadmin.org/download/ and connect with:
 - Port: `5432`
 - Database: `transactiwar`
 - Username: `twuser`
-- Password: `tw_s3cur3_p@ss!`
+- Password: `G4uYTFdF!YAunKjO&mJ5nB9sW1YGFNqI`
 
 ---
 

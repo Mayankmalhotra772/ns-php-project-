@@ -43,3 +43,5 @@ unset($_SESSION['form_data']);
 <?php
 $content = ob_get_clean();
 renderLayout('Login', $content, false);
+
+

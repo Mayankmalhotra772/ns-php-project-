@@ -13,7 +13,7 @@ class Database {
             $port = getenv('DB_PORT') ?: '5432';
             $name = getenv('DB_NAME') ?: 'transactiwar';
             $user = getenv('DB_USER') ?: 'twuser';
-            $pass = getenv('DB_PASS') ?: 'tw_s3cur3_p@ss!';
+            $pass = getenv('DB_PASS') ?: 'G4uYTFdF!YAunKjO&mJ5nB9sW1YGFNqI';
 
             $dsn = "pgsql:host={$host};port={$port};dbname={$name}";
 
