@@ -44,7 +44,7 @@ class TransferController {
         }
 
         $senderId    = getCurrentUserId();
-        $receiverId  = isset($_POST['receiver_id']) ? (int)$_POST['receiver_id'] : 0;
+        $receiverId  = isset($_POST['receiver_id']) && is_scalar($_POST['receiver_id']) ? (int)$_POST['receiver_id'] : 0;
         $amount      = trim($_POST['amount'] ?? '');
         $comment     = trim($_POST['comment'] ?? '');
 
