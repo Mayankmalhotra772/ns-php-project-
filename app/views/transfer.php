@@ -7,7 +7,7 @@ ob_start();
         <h1 class="text-2xl font-bold text-gray-800 mb-2">Transfer Money</h1>
         <p class="text-gray-500 mb-6">Your balance: <span class="font-semibold text-indigo-700">Rs. <?= sanitizeOutput(number_format($balance, 2)) ?></span></p>
 
-        <form method="POST" action="/transfer">
+        <form method="POST" action="/transfer" autocomplete="off">
             <?= $csrfField ?>
 
             <div class="mb-4">

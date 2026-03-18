@@ -6,7 +6,7 @@ ob_start();
     <div class="bg-white rounded-xl shadow-md p-8">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Search Users</h1>
 
-        <form method="GET" action="/search" class="mb-6">
+        <form method="GET" action="/search" class="mb-6" >
             <div class="flex space-x-2">
                 <input type="text" name="q" placeholder="Search by username or user ID..."
                     maxlength="100"
