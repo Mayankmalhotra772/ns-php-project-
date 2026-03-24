@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y \
 # Enable Apache modules
 RUN a2enmod rewrite headers ssl socache_shmcb
 
+# Only listen on HTTPS — remove HTTP port 80
+RUN sed -i 's/Listen 80//' /etc/apache2/ports.conf
+
 # Generate self-signed SSL certificate
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/ssl/private/apache-selfsigned.key \
@@ -42,6 +45,6 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
 
-EXPOSE 80 443
+EXPOSE 443
 
 ENTRYPOINT ["entrypoint.sh"]
