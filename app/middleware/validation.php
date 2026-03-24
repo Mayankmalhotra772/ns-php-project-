@@ -65,7 +65,7 @@ function validateTransferAmount(string $amount): array {
 
     if (empty($amount)) {
         $errors[] = 'Amount is required.';
-    } elseif (!is_numeric($amount)) {
+    } elseif (!preg_match('/^\d+(\.\d{1,2})?$/', $amount)) {
         $errors[] = 'Amount must be a valid number.';
     } else {
         $num = floatval($amount);
@@ -153,6 +153,8 @@ function validateProfileImage(array $file): array {
     $imageInfo = @getimagesize($file['tmp_name']);
     if ($imageInfo === false) {
         $errors[] = 'The uploaded file is not a valid image.';
+    } elseif ($imageInfo[0] > 4000 || $imageInfo[1] > 4000) {
+        $errors[] = 'Image dimensions must not exceed 4000x4000 pixels.';
     }
 
     return $errors;
